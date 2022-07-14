@@ -53,12 +53,6 @@ function myFunction() {
         }
       ]
     });
-    /*var options = {
-    'method' : 'post',
-    'contentType': 'application/json',
-    // Convert the JavaScript object to a JSON string.
-    'payload' : JSON.stringify(data)
-  };*/
     var requestOptions = {
       'method': 'post',
       'contentType': 'application/json',
@@ -71,20 +65,19 @@ function myFunction() {
     
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions)
     Logger.log(response.getContentText());
-      /*.then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));*/
-   /* async function getResults() {
-      let response = await fetch("https://api.cohere.ai/small/classify", requestOptions);
-      let data = await response.json();
-      Logger.log(data);
-    }*/
-    //getResults();
   }
   function logProductInfo() {
     var sheet = SpreadsheetApp.getActiveSheet();
     var data = sheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      Logger.log('REVIEW: ' + data[i][0] + ' LABEL: ' + data[i][1]);
-    }
+    //for (var i = 1; i < data.length; i++) {
+     // Logger.log('REVIEW: ' + data[i][0] + ' LABEL: ' + data[i][1]);
+    //}
+      const cars = [];
+      for (var i = 1; i < data.length; i++) {
+          cars[i-1] = '\n{\n"text" : '+ data[i][0]+''+',\n "label" : '+ data[i][1]+'\n}';
+      }
+      //for (var i = 1; i < data.length; i++) {
+        //  entries.set('text : '+ data[i][0], 'label : '+ data[i][1]);
+      //}
+      Logger.log(cars)
   }
