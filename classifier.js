@@ -1,21 +1,10 @@
-function myFunction(input) {
-    var sheet = SpreadsheetApp.getActiveSheet();
-    var data = sheet.getDataRange().getValues();
-    const cars = [];
-    for (var i = 1; i < data.length; i++) {
-        cars[i - 1] = '{"text" : "' + data[i][0] + '"' + ', "label" : "' + data[i][1] + '"}';
-    }
-    // Logger.log(cars);
-    // for (var i = 1; i < data.length; i++) {
-    //   cars[i-1] = '{"text" : "'+ data[i][0]+'"'+', "label" : "'+ data[i][1]+'"}';
-    //}
-    var raw = JSON.stringify({
+function classify(cell_value) {
+
+    var rawData = JSON.stringify({
         "outputIndicator": "",
         "taskDescription": "",
         "inputs": [
-           /*// "It boasts a stellar ensemble cast of critically acclaimed actors and box office sensations. Half the fun is identifying them before their scene is over.",
-           // "I felt that there was an endless barrage of words coming at me for the entire movie and I couldn't possibly absorb or keep up with it, which resulted in my missing much of the subtle nuances, sarcasm, and usual verbal humor."*/
-           String(input)
+            cell_value
         ],
         "examples": [
             {
@@ -75,44 +64,45 @@ function myFunction(input) {
                 "label": "Positive"
             }]
     });
+
     var requestOptions = {
         'method': 'post',
         'contentType': 'application/json',
         'headers': {
             'Authorization': 'Bearer iwXeHXJjhh5VyRlbj7i7hE2KxvrOz5l9SqMZZ8yM'
         },
-        'payload': raw,
+        'payload': rawData,
         redirect: 'follow'
     };
 
-    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions)
-   // return response.getContentText();
-  
-    //return JSON.parse(response.getContentText());
+    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions);
     let jsonObj = JSON.parse(response.getContentText());
-    let classicationObj = jsonObj.classifications[0]
-    let confidencesArr = classicationObj.confidences
-    let confidenceLvl = (parseFloat(confidencesArr[0].confidence) * 100).toFixed(2)+"%"
-    let ourPrediction = classicationObj.prediction
-    //Logger.log(JSON.parse(response.getContentText()));
-    Logger.log(confidenceLvl);
-}
-function logProductInfo() {
-    var sheet = SpreadsheetApp.getActiveSheet();
-    var data = sheet.getDataRange().getValues();
-    const cars = [];
-    for (var i = 1; i < data.length; i++) {
-        cars[i - 1] = '\n{\n"text" : "' + data[i][0] + '"' + ',\n "label" : "' + data[i][1] + '"\n}';
+    let classicationObj = jsonObj.classifications[0];
+    let ourPrediction = classicationObj.prediction;
+    let confidencesArr = classicationObj.confidences;
+    let confidenceLvl;
+    if (ourPrediction == "Positive") {
+        confidenceLvl = (parseFloat(confidencesArr[1].confidence) * 100).toFixed(2) + "%";
+    } else {
+        confidenceLvl = (parseFloat(confidencesArr[0].confidence) * 100).toFixed(2) + "%";
     }
-    //for (var i = 1; i < data.length; i++) {
-    //  cars[i-1] = '{"text" : "'+ data[i][0]+'"'+', "label" : "'+ data[i][1]+'"}';
-    //}
-    Logger.log(cars)
+
+    let displayString = "PREDICTION: " + ourPrediction + " review\n" + "Confidence Level: " + confidenceLvl + "\n";
+    return displayString;
+}
+function showSheetData() {
+    var activeSheet = SpreadsheetApp.getActiveSheet();
+    var cell_values = activeSheet.getDataRange().getValues();
+    const reviews = [];
+    for (var i = 1; i < data.length; i++) {
+        reviews[i - 1] = '\n{\n"text" : "' + cell_values[i][0] + '"' + ',\n "label" : "' + cell_values[i][1] + '"\n}';
+    }
+    Logger.log(reviews);
 }
 function summarize(input) {
 
     var raw = JSON.stringify({
-        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: "+ input +"\n\nTLDR:",
+        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: " + input + "\n\nTLDR:",
         "max_tokens": 50,
         "temperature": 0.8,
         "k": 0,
@@ -136,12 +126,11 @@ function summarize(input) {
         redirect: 'follow'
     };
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
-    //return JSON.parse(response.getContentText());
     let jsonObj = JSON.parse(response.getContentText());
-    Logger.log(jsonObj)
+    let summarizedTxt = "REVIEW SUMMARY: " + jsonObj.text + "\n";
+    return summarizedTxt;
 }
-function automateTest(sheetArg){
- let fResponse, sResponse;
- 
-  return myFunction(sheetArg)+"---\n"+summarize(String(sheetArg));
+function automateTest(sheetArg) {
+    sheetArg = String(sheetArg);
+    return classify(sheetArg) + "\n" + summarize(sheetArg);
 }
