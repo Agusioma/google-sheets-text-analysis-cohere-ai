@@ -86,7 +86,16 @@ function myFunction(input) {
     };
 
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions)
-    return response.getContentText();
+   // return response.getContentText();
+  
+    //return JSON.parse(response.getContentText());
+    let jsonObj = JSON.parse(response.getContentText());
+    let classicationObj = jsonObj.classifications[0]
+    let confidencesArr = classicationObj.confidences
+    let confidenceLvl = (parseFloat(confidencesArr[0].confidence) * 100).toFixed(2)+"%"
+    let ourPrediction = classicationObj.prediction
+    //Logger.log(JSON.parse(response.getContentText()));
+    Logger.log(confidenceLvl);
 }
 function logProductInfo() {
     var sheet = SpreadsheetApp.getActiveSheet();
@@ -127,7 +136,9 @@ function summarize(input) {
         redirect: 'follow'
     };
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
-    return response.getContentText();;
+    //return JSON.parse(response.getContentText());
+    let jsonObj = JSON.parse(response.getContentText());
+    Logger.log(jsonObj)
 }
 function automateTest(sheetArg){
  let fResponse, sResponse;
