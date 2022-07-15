@@ -1,4 +1,4 @@
-function myFunction() {
+function myFunction(input) {
     var sheet = SpreadsheetApp.getActiveSheet();
     var data = sheet.getDataRange().getValues();
     const cars = [];
@@ -13,8 +13,9 @@ function myFunction() {
         "outputIndicator": "",
         "taskDescription": "",
         "inputs": [
-            "It boasts a stellar ensemble cast of critically acclaimed actors and box office sensations. Half the fun is identifying them before their scene is over.",
-            "I felt that there was an endless barrage of words coming at me for the entire movie and I couldn't possibly absorb or keep up with it, which resulted in my missing much of the subtle nuances, sarcasm, and usual verbal humor."
+           /*// "It boasts a stellar ensemble cast of critically acclaimed actors and box office sensations. Half the fun is identifying them before their scene is over.",
+           // "I felt that there was an endless barrage of words coming at me for the entire movie and I couldn't possibly absorb or keep up with it, which resulted in my missing much of the subtle nuances, sarcasm, and usual verbal humor."*/
+           input
         ],
         "examples": [
             {
@@ -76,7 +77,6 @@ function myFunction() {
     });
     var requestOptions = {
         'method': 'post',
-        'muteHttpExceptions': true,
         'contentType': 'application/json',
         'headers': {
             'Authorization': 'Bearer iwXeHXJjhh5VyRlbj7i7hE2KxvrOz5l9SqMZZ8yM'
@@ -86,7 +86,7 @@ function myFunction() {
     };
 
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions)
-    Logger.log(response);
+    return response.getContentText();
 }
 function logProductInfo() {
     var sheet = SpreadsheetApp.getActiveSheet();
@@ -103,7 +103,7 @@ function logProductInfo() {
 function summarize() {
 
     var raw = JSON.stringify({
-        "prompt": "Passage: Is Wordle getting tougher to solve? Players seem to be convinced that the game has gotten harder in recent weeks ever since The New York Times bought it from developer Josh Wardle in late January. The Times has come forward and shared that this likely isn’t the case. That said, the NYT did mess with the back end code a bit, removing some offensive and sexual language, as well as some obscure words There is a viral thread claiming that a confirmation bias was at play. One Twitter user went so far as to claim the game has gone to “the dusty section of the dictionary” to find its latest words.\n\nTLDR: Wordle has not gotten more difficult to solve.\n--\nPassage: ArtificialIvan, a seven-year-old, London-based payment and expense management software company, has raised $190 million in Series C funding led by ARG Global, with participation from D9 Capital Group and Boulder Capital. Earlier backers also joined the round, including Hilton Group, Roxanne Capital, Paved Roads Ventures, Brook Partners, and Plato Capital.\n\nTLDR: ArtificialIvan has raised $190 million in Series C funding.\n--\nPassage: The National Weather Service announced Tuesday that a freeze warning is in effect for the Bay Area, with freezing temperatures expected in these areas overnight. Temperatures could fall into the mid-20s to low 30s in some areas. In anticipation of the hard freeze, the weather service warns people to take action now.\n\nTLDR:",
+        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: First off, if you do not like Wes Anderson films, you can completely skip this trip. If you are interested in his work and the trailers tickle your fancy, there are better ways to initiate yourself into this world. This is like seeing a musical artist's greatest hits tour but not having discovered the fan-favorite album tracks where the magic really lies. \n\nTLDR:",
         "max_tokens": 50,
         "temperature": 0.8,
         "k": 0,
@@ -126,6 +126,6 @@ function summarize() {
         'payload': raw,
         redirect: 'follow'
     };
-    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions)
+    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
     Logger.log(response);
 }
