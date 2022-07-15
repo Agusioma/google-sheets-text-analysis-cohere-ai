@@ -15,7 +15,7 @@ function myFunction(input) {
         "inputs": [
            /*// "It boasts a stellar ensemble cast of critically acclaimed actors and box office sensations. Half the fun is identifying them before their scene is over.",
            // "I felt that there was an endless barrage of words coming at me for the entire movie and I couldn't possibly absorb or keep up with it, which resulted in my missing much of the subtle nuances, sarcasm, and usual verbal humor."*/
-           input
+           String(input)
         ],
         "examples": [
             {
@@ -100,10 +100,10 @@ function logProductInfo() {
     //}
     Logger.log(cars)
 }
-function summarize() {
+function summarize(input) {
 
     var raw = JSON.stringify({
-        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: First off, if you do not like Wes Anderson films, you can completely skip this trip. If you are interested in his work and the trailers tickle your fancy, there are better ways to initiate yourself into this world. This is like seeing a musical artist's greatest hits tour but not having discovered the fan-favorite album tracks where the magic really lies. \n\nTLDR:",
+        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: "+ input +"\n\nTLDR:",
         "max_tokens": 50,
         "temperature": 0.8,
         "k": 0,
@@ -127,5 +127,10 @@ function summarize() {
         redirect: 'follow'
     };
     var response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
-    Logger.log(response);
+    return response.getContentText();;
+}
+function automateTest(sheetArg){
+ let fResponse, sResponse;
+ 
+  return myFunction(sheetArg)+"---\n"+summarize(String(sheetArg));
 }
