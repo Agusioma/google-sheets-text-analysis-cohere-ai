@@ -1,6 +1,6 @@
 function classify(cell_value) {
 
-    var rawData = JSON.stringify({
+    let rawData = JSON.stringify({
         "outputIndicator": "",
         "taskDescription": "",
         "inputs": [
@@ -65,25 +65,27 @@ function classify(cell_value) {
             }]
     });
 
-    var requestOptions = {
+    let requestOptions = {
         'method': 'post',
         'contentType': 'application/json',
         'headers': {
-            'Authorization': 'Bearer iwXeHXJjhh5VyRlbj7i7hE2KxvrOz5l9SqMZZ8yM'
+            'Authorization': 'Bearer <your-token>'
         },
         'payload': rawData,
         redirect: 'follow'
     };
 
-    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions);
+    let response = UrlFetchApp.fetch("https://api.cohere.ai/small/classify", requestOptions);
     let jsonObj = JSON.parse(response.getContentText());
     let classicationObj = jsonObj.classifications[0];
     let ourPrediction = classicationObj.prediction;
     let confidencesArr = classicationObj.confidences;
     let confidenceLvl;
     if (ourPrediction == "Positive") {
+      //use the second confidence level
         confidenceLvl = (parseFloat(confidencesArr[1].confidence) * 100).toFixed(2) + "%";
     } else {
+      //use the first confidence level
         confidenceLvl = (parseFloat(confidencesArr[0].confidence) * 100).toFixed(2) + "%";
     }
 
@@ -91,18 +93,19 @@ function classify(cell_value) {
     return displayString;
 }
 function showSheetData() {
-    var activeSheet = SpreadsheetApp.getActiveSheet();
-    var cell_values = activeSheet.getDataRange().getValues();
+    let activeSheet = SpreadsheetApp.getActiveSheet();
+    let cell_values = activeSheet.getDataRange().getValues();
     const reviews = [];
-    for (var i = 1; i < data.length; i++) {
+    for (let i = 1; i < data.length; i++) {
         reviews[i - 1] = '\n{\n"text" : "' + cell_values[i][0] + '"' + ',\n "label" : "' + cell_values[i][1] + '"\n}';
     }
     Logger.log(reviews);
 }
-function summarize(input) {
 
-    var raw = JSON.stringify({
-        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: " + input + "\n\nTLDR:",
+function summarize(cell_value) {
+
+    let raw = JSON.stringify({
+        "prompt": "REVIEW: Loved it loved the style. I didn’t think I would love it. I didn’t love the trailer, but when I saw the whole movie, I was really impressed. I liked all the short stories, the mix of black and white, the humour, and comedy that was present in this movie. \n\nTLDR: I loved it, and I was impressed by the style in this movie. \n--\nREVIEW: I think the french dispatch is some of Wes Anderson's best work to date. I strongly believe it will stand the test if time and age extremely well just as his other work does. It is timeless while at the same time being very modern. \n\nTLDR: The movie is one of Wes Anderson's best work, and it is timeless.\n--\nREVIEW: I loved the obit and the first two stories but then the film sagged with the student portion. And after that, I only stuck it out till the end to watch the delightful visuals. Didn't like the rest of the stories, didn't like the rest of my movie apart from the picturesqueness.\n\nTLDR: I only loved the obit, the picturesqueness, and not the rest of the stories. \n--\nREVIEW: " + cell_value + "\n\nTLDR:",
         "max_tokens": 50,
         "temperature": 0.8,
         "k": 0,
@@ -115,22 +118,22 @@ function summarize(input) {
         "return_likelihoods": "NONE"
     });
 
-    var requestOptions = {
+    let requestOptions = {
         'method': 'post',
         'muteHttpExceptions': true,
         'contentType': 'application/json',
         'headers': {
-            'Authorization': 'Bearer iwXeHXJjhh5VyRlbj7i7hE2KxvrOz5l9SqMZZ8yM'
+            'Authorization': 'Bearer <your-token>'
         },
         'payload': raw,
         redirect: 'follow'
     };
-    var response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
+    let response = UrlFetchApp.fetch("https://api.cohere.ai/small/generate", requestOptions)
     let jsonObj = JSON.parse(response.getContentText());
     let summarizedTxt = "REVIEW SUMMARY: " + jsonObj.text + "\n";
     return summarizedTxt;
 }
-function automateTest(sheetArg) {
+function automate(sheetArg) {
     sheetArg = String(sheetArg);
     return classify(sheetArg) + "\n" + summarize(sheetArg);
 }
